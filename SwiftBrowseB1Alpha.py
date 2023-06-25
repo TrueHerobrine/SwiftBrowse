@@ -67,6 +67,9 @@ class BrowserWindow(QMainWindow):
         toolbar = QToolBar()
         self.addToolBar(toolbar)
 
+        def refresh_action_triggered(self):
+            self.current_web_view().reload()
+
         # Create the back action
         back_action = QAction("Back", self)
         toolbar.addAction(back_action)
@@ -78,6 +81,14 @@ class BrowserWindow(QMainWindow):
         # Create the stop action
         stop_action = QAction("Stop", self)
         toolbar.addAction(stop_action)
+
+        # Create the refresh action
+        refresh_action = QAction("Refresh", self)
+        refresh_action.triggered.connect(self.refresh_action_triggered)
+        toolbar.addAction(refresh_action)
+
+        # Connect the refresh action to a function
+        refresh_action.triggered.connect(self.refresh_action_triggered)
 
         # Create the address bar
         self.address_bar = QLineEdit()
@@ -94,9 +105,15 @@ class BrowserWindow(QMainWindow):
         self.add_new_tab()
 
         # Connect actions to functions
+        refresh_action_triggered(self)
+        self.current_web_view().reload()
+
         back_action.triggered.connect(self.back_action_triggered)
         forward_action.triggered.connect(self.forward_action_triggered)
         stop_action.triggered.connect(self.stop_action_triggered)
+        back_action.triggered.connect(self.back_action_triggered)
+        forward_action.triggered.connect(self.forward_action_triggered)
+        refresh_action.triggered.connect(self.refresh_action_triggered)
 
         # Create the "Add Tab" button
         add_tab_button = QPushButton("Add Tab", self)
@@ -182,6 +199,9 @@ class BrowserWindow(QMainWindow):
     def stop_action_triggered(self):
         self.current_web_view().stop()
 
+    def refresh_action_triggered(self):
+        self.current_web_view().reload()
+
 
 class SettingsDialog(QDialog):
         def __init__(self, parent=None):
@@ -223,10 +243,14 @@ class SettingsDialog(QDialog):
             self.search_engine_radio_button4 = QRadioButton("Bing")
             self.search_engine_radio_button4.clicked.connect(
                 lambda: self.set_search_engine("https://www.bing.com/search?q="))
+            self.search_engine_radio_button5 = QRadioButton("Qwant")
+            self.search_engine_radio_button5.clicked.connect(
+                lambda: self.set_search_engine("https://www.qwant.com/?l=en&q="))
             search_engine_layout.addWidget(self.search_engine_radio_button1)
             search_engine_layout.addWidget(self.search_engine_radio_button2)
             search_engine_layout.addWidget(self.search_engine_radio_button3)
             search_engine_layout.addWidget(self.search_engine_radio_button4)
+            search_engine_layout.addWidget(self.search_engine_radio_button5)
             search_engine_group_box.setLayout(search_engine_layout)
 
             # Add the group boxes to the layout
@@ -279,8 +303,6 @@ class AdBlockWebEngineView(QWebEngineView):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
     browser_window = BrowserWindow()
     browser_window.show()
-
     sys.exit(app.exec_())
