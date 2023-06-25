@@ -170,78 +170,80 @@ class BrowserWindow(QMainWindow):
     def select_url_bar_text(self, event):
         self.address_bar.selectAll()
 
-
 class SettingsDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Settings")
-        self.setMinimumWidth(300)
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setWindowTitle("Settings")
+            self.setMinimumWidth(300)
 
-        layout = QVBoxLayout()
+            layout = QVBoxLayout()
 
-        # Create the default browser group box
-        default_browser_group_box = QGroupBox("Default Browser")
-        default_browser_layout = QVBoxLayout()
-        self.default_browser_radio_button1 = QRadioButton("Browser 1")
-        self.default_browser_radio_button2 = QRadioButton("Browser 2")
-        default_browser_layout.addWidget(self.default_browser_radio_button1)
-        default_browser_layout.addWidget(self.default_browser_radio_button2)
-        default_browser_group_box.setLayout(default_browser_layout)
+            # Create the dark mode group box
+            dark_mode_group_box = QGroupBox("Dark Mode")
+            dark_mode_layout = QHBoxLayout()
+            self.dark_mode_radio_button1 = QRadioButton("Light")
+            self.dark_mode_radio_button1.setChecked(True)
+            self.dark_mode_radio_button1.clicked.connect(lambda: self.change_theme("Light"))
+            self.dark_mode_radio_button2 = QRadioButton("Dark")
+            self.dark_mode_radio_button2.clicked.connect(lambda: self.change_theme("Dark"))
+            dark_mode_layout.addWidget(self.dark_mode_radio_button1)
+            dark_mode_layout.addWidget(self.dark_mode_radio_button2)
+            dark_mode_group_box.setLayout(dark_mode_layout)
 
-        # Create the dark mode group box
-        dark_mode_group_box = QGroupBox("Dark Mode")
-        dark_mode_layout = QHBoxLayout()
-        self.dark_mode_radio_button1 = QRadioButton("Light")
-        self.dark_mode_radio_button1.setChecked(True)
-        self.dark_mode_radio_button1.clicked.connect(lambda: self.change_theme("Light"))
-        self.dark_mode_radio_button2 = QRadioButton("Dark")
-        self.dark_mode_radio_button2.clicked.connect(lambda: self.change_theme("Dark"))
-        dark_mode_layout.addWidget(self.dark_mode_radio_button1)
-        dark_mode_layout.addWidget(self.dark_mode_radio_button2)
-        dark_mode_group_box.setLayout(dark_mode_layout)
+            # Create the delete cookies button
+            delete_cookies_button = QPushButton("Delete Cookies")
+            delete_cookies_button.clicked.connect(self.delete_cookies)
 
-        # Create the search engine group box
-        search_engine_group_box = QGroupBox("Search Engine")
-        search_engine_layout = QVBoxLayout()
-        self.search_engine_radio_button1 = QRadioButton("Google")
-        self.search_engine_radio_button1.setChecked(True)
-        self.search_engine_radio_button1.clicked.connect(lambda: self.set_search_engine("https://www.google.com/search?q="))
-        self.search_engine_radio_button2 = QRadioButton("Ecosia")
-        self.search_engine_radio_button2.clicked.connect(lambda: self.set_search_engine("https://www.ecosia.org/search?q="))
-        self.search_engine_radio_button3 = QRadioButton("DuckDuckGo")
-        self.search_engine_radio_button3.clicked.connect(lambda: self.set_search_engine("https://duckduckgo.com/?q="))
-        self.search_engine_radio_button4 = QRadioButton("Bing")
-        self.search_engine_radio_button4.clicked.connect(lambda: self.set_search_engine("https://www.bing.com/search?q="))
-        search_engine_layout.addWidget(self.search_engine_radio_button1)
-        search_engine_layout.addWidget(self.search_engine_radio_button2)
-        search_engine_layout.addWidget(self.search_engine_radio_button3)
-        search_engine_layout.addWidget(self.search_engine_radio_button4)
-        search_engine_group_box.setLayout(search_engine_layout)
+            # Create the search engine group box
+            search_engine_group_box = QGroupBox("Search Engine")
+            search_engine_layout = QVBoxLayout()
+            self.search_engine_radio_button1 = QRadioButton("Google")
+            self.search_engine_radio_button1.setChecked(True)
+            self.search_engine_radio_button1.clicked.connect(
+                lambda: self.set_search_engine("https://www.google.com/search?q="))
+            self.search_engine_radio_button2 = QRadioButton("Ecosia")
+            self.search_engine_radio_button2.clicked.connect(
+                lambda: self.set_search_engine("https://www.ecosia.org/search?q="))
+            self.search_engine_radio_button3 = QRadioButton("DuckDuckGo")
+            self.search_engine_radio_button3.clicked.connect(
+                lambda: self.set_search_engine("https://duckduckgo.com/?q="))
+            self.search_engine_radio_button4 = QRadioButton("Bing")
+            self.search_engine_radio_button4.clicked.connect(
+                lambda: self.set_search_engine("https://www.bing.com/search?q="))
+            search_engine_layout.addWidget(self.search_engine_radio_button1)
+            search_engine_layout.addWidget(self.search_engine_radio_button2)
+            search_engine_layout.addWidget(self.search_engine_radio_button3)
+            search_engine_layout.addWidget(self.search_engine_radio_button4)
+            search_engine_group_box.setLayout(search_engine_layout)
 
-        # Add the group boxes to the layout
-        layout.addWidget(default_browser_group_box)
-        layout.addWidget(dark_mode_group_box)
-        layout.addWidget(search_engine_group_box)
+            # Add the group boxes to the layout
+            layout.addWidget(dark_mode_group_box)
+            layout.addWidget(delete_cookies_button)
+            layout.addWidget(search_engine_group_box)
 
-        self.setLayout(layout)
+            self.setLayout(layout)
 
-    def change_theme(self, theme):
-        main_window = self.parent()
-        main_window.set_theme(theme)
+        def delete_cookies(self):
+            web_engine_profile = QWebEngineProfile.defaultProfile()
+            web_engine_profile.cookieStore().deleteAllCookies()
 
-    def set_search_engine(self, search_engine):
-        main_window = self.parent()
-        main_window.search_engine = search_engine
+        def change_theme(self, theme):
+            main_window = self.parent()
+            main_window.set_theme(theme)
 
-    def get_search_engine(self):
-        if self.search_engine_radio_button1.isChecked():
-            return "https://www.google.com/search?q="
-        elif self.search_engine_radio_button2.isChecked():
-            return "https://www.ecosia.org/search?q="
-        elif self.search_engine_radio_button3.isChecked():
-            return "https://duckduckgo.com/?q="
-        elif self.search_engine_radio_button4.isChecked():
-            return "https://www.bing.com/search?q="
+        def set_search_engine(self, search_engine):
+            main_window = self.parent()
+            main_window.search_engine = search_engine
+
+        def get_search_engine(self):
+            if self.search_engine_radio_button1.isChecked():
+                return "https://www.google.com/search?q="
+            elif self.search_engine_radio_button2.isChecked():
+                return "https://www.ecosia.org/search?q="
+            elif self.search_engine_radio_button3.isChecked():
+                return "https://duckduckgo.com/?q="
+            elif self.search_engine_radio_button4.isChecked():
+                return "https://www.bing.com/search?q="
 
 
 class AdBlockWebEngineView(QWebEngineView):
