@@ -27,8 +27,11 @@ class CloseableTabWidget(QTabWidget):
 
     def tab_close_requested(self, index):
         widget = self.widget(index)
-        widget.deleteLater()
         self.removeTab(index)
+        widget.deleteLater()
+
+        if self.count() == 0:
+            self.parent().add_new_tab()
 
     def change_theme(self, theme):
         style_sheet = """
@@ -91,9 +94,9 @@ class BrowserWindow(QMainWindow):
         self.add_new_tab()
 
         # Connect actions to functions
-        back_action.triggered.connect(self.current_web_view().back)
-        forward_action.triggered.connect(self.current_web_view().forward)
-        stop_action.triggered.connect(self.current_web_view().stop)
+        back_action.triggered.connect(self.back_action_triggered)
+        forward_action.triggered.connect(self.forward_action_triggered)
+        stop_action.triggered.connect(self.stop_action_triggered)
 
         # Create the "Add Tab" button
         add_tab_button = QPushButton("Add Tab", self)
@@ -169,6 +172,16 @@ class BrowserWindow(QMainWindow):
 
     def select_url_bar_text(self, event):
         self.address_bar.selectAll()
+
+    def back_action_triggered(self):
+        self.current_web_view().back()
+
+    def forward_action_triggered(self):
+        self.current_web_view().forward()
+
+    def stop_action_triggered(self):
+        self.current_web_view().stop()
+
 
 class SettingsDialog(QDialog):
         def __init__(self, parent=None):
@@ -264,11 +277,10 @@ class AdBlockWebEngineView(QWebEngineView):
         return super().acceptNavigationRequest(url, _type, isMainFrame)
 
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
+    browser_window = BrowserWindow()
+    browser_window.show()
 
-    window = BrowserWindow()
-    window.show()
     sys.exit(app.exec_())
